@@ -1,0 +1,10 @@
+com\logistics\shipment\ShipmentApplication.class
+com\logistics\shipment\exception\GlobalExceptionHandler.class
+com\logistics\shipment\entity\Shipment.class
+com\logistics\shipment\controller\ShipmentController.class
+com\logistics\shipment\repository\ShipmentRepository.class
+com\logistics\shipment\dto\ShipmentResponse.class
+com\logistics\shipment\model\ShipmentStatus.class
+com\logistics\shipment\exception\ShipmentNotFoundException.class
+com\logistics\shipment\dto\CreateShipmentRequest.class
+com\logistics\shipment\service\ShipmentService.class
