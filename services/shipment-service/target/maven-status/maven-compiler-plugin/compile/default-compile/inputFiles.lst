@@ -1,10 +1,14 @@
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\controller\ShipmentController.java
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\dto\CreateShipmentRequest.java
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\dto\ShipmentResponse.java
+C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\dto\ShipmentStatusHistoryResponse.java
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\entity\Shipment.java
+C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\entity\ShipmentStatusHistory.java
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\exception\GlobalExceptionHandler.java
+C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\exception\InvalidShipmentStatusTransitionException.java
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\exception\ShipmentNotFoundException.java
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\model\ShipmentStatus.java
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\repository\ShipmentRepository.java
+C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\repository\ShipmentStatusHistoryRepository.java
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\service\ShipmentService.java
 C:\Users\VRRithika\training_phase_2\Logistics-and-Shipment-Tracking-Platform\services\shipment-service\src\main\java\com\logistics\shipment\ShipmentApplication.java
