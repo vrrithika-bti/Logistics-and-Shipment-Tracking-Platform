@@ -4,6 +4,7 @@ import com.logistics.tracking.dto.CreateTrackingEventRequest;
 import com.logistics.tracking.dto.TrackingEventResponse;
 import com.logistics.tracking.entity.TrackingEvent;
 import com.logistics.tracking.service.TrackingEventService;
+import com.logistics.tracking.dto.ShipmentTrackingSummaryResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,4 +56,40 @@ public class TrackingEventController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/shipment/{shipmentId}/current")
+    public ResponseEntity<TrackingEventResponse> getCurrentTrackingEvent(
+            @PathVariable UUID shipmentId
+    ) {
+
+        TrackingEvent event =
+                trackingEventService.getCurrentTrackingEvent(shipmentId);
+
+        return ResponseEntity.ok(
+                TrackingEventResponse.fromEntity(event)
+        );
+    }
+
+
+    @GetMapping("/shipment/{shipmentId}/summary")
+public ResponseEntity<ShipmentTrackingSummaryResponse> getShipmentSummary(
+        @PathVariable UUID shipmentId
+) {
+
+    List<TrackingEvent> events =
+            trackingEventService.getTrackingEventsForShipment(shipmentId);
+
+    TrackingEvent latestEvent =
+            events.get(events.size() - 1);
+
+    ShipmentTrackingSummaryResponse response =
+            ShipmentTrackingSummaryResponse.from(
+                    latestEvent,
+                    events.size()
+            );
+
+    return ResponseEntity.ok(response);
+}
+
+
 }

@@ -1,6 +1,7 @@
 package com.logistics.tracking.dto;
 
 import com.logistics.tracking.entity.TrackingEvent;
+import com.logistics.tracking.enums.TrackingStatus;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -9,7 +10,7 @@ public class TrackingEventResponse {
 
     private UUID id;
     private UUID shipmentId;
-    private String status;
+    private TrackingStatus status;
     private String location;
     private LocalDateTime eventTime;
     private LocalDateTime createdAt;
@@ -36,7 +37,7 @@ public class TrackingEventResponse {
         return shipmentId;
     }
 
-    public String getStatus() {
+    public TrackingStatus getStatus() {
         return status;
     }
 

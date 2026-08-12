@@ -1,6 +1,6 @@
 package com.logistics.tracking.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import com.logistics.tracking.enums.TrackingStatus;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -12,9 +12,8 @@ public class CreateTrackingEventRequest {
     @NotNull(message = "Shipment ID is required")
     private UUID shipmentId;
 
-    @NotBlank(message = "Status is required")
-    @Size(max = 30, message = "Status must not exceed 30 characters")
-    private String status;
+    @NotNull(message = "Status is required")
+    private TrackingStatus status;
 
     @Size(max = 255, message = "Location must not exceed 255 characters")
     private String location;
@@ -29,11 +28,11 @@ public class CreateTrackingEventRequest {
         this.shipmentId = shipmentId;
     }
 
-    public String getStatus() {
+    public TrackingStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TrackingStatus status) {
         this.status = status;
     }
 

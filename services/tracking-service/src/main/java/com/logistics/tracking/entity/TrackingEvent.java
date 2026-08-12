@@ -1,5 +1,6 @@
 package com.logistics.tracking.entity;
 
+import com.logistics.tracking.enums.TrackingStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -28,8 +29,9 @@ public class TrackingEvent {
     @Column(name = "shipment_id", nullable = false)
     private UUID shipmentId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
-    private String status;
+    private TrackingStatus status;
 
     @Column(name = "location", length = 255)
     private String location;
@@ -55,11 +57,11 @@ public class TrackingEvent {
         this.shipmentId = shipmentId;
     }
 
-    public String getStatus() {
+    public TrackingStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TrackingStatus status) {
         this.status = status;
     }
 
