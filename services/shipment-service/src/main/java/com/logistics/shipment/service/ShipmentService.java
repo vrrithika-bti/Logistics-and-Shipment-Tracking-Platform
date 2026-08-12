@@ -2,28 +2,40 @@ package com.logistics.shipment.service;
 
 import com.logistics.shipment.dto.CreateShipmentRequest;
 import com.logistics.shipment.dto.ShipmentResponse;
+import com.logistics.shipment.dto.ShipmentStatusHistoryResponse;
 import com.logistics.shipment.entity.Shipment;
+import com.logistics.shipment.entity.ShipmentStatusHistory;
+import com.logistics.shipment.exception.InvalidShipmentStatusTransitionException;
 import com.logistics.shipment.exception.ShipmentNotFoundException;
 import com.logistics.shipment.model.ShipmentStatus;
 import com.logistics.shipment.repository.ShipmentRepository;
+import com.logistics.shipment.repository.ShipmentStatusHistoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ShipmentService {
 
     private final ShipmentRepository shipmentRepository;
+    private final ShipmentStatusHistoryRepository historyRepository;
 
-    public ShipmentService(ShipmentRepository shipmentRepository) {
+    public ShipmentService(
+            ShipmentRepository shipmentRepository,
+            ShipmentStatusHistoryRepository historyRepository
+    ) {
         this.shipmentRepository = shipmentRepository;
+        this.historyRepository = historyRepository;
     }
 
     @Transactional
-    public ShipmentResponse createShipment(CreateShipmentRequest request) {
+    public ShipmentResponse createShipment(
+            CreateShipmentRequest request
+    ) {
 
         Shipment shipment = new Shipment();
 
@@ -33,7 +45,17 @@ public class ShipmentService {
         shipment.setDestination(request.getDestination());
         shipment.setStatus(ShipmentStatus.CREATED);
 
-        Shipment savedShipment = shipmentRepository.save(shipment);
+        Shipment savedShipment =
+                shipmentRepository.save(shipment);
+
+        ShipmentStatusHistory history =
+                new ShipmentStatusHistory();
+
+        history.setShipmentId(savedShipment.getId());
+        history.setOldStatus(null);
+        history.setNewStatus(ShipmentStatus.CREATED);
+
+        historyRepository.save(history);
 
         return ShipmentResponse.fromEntity(savedShipment);
     }
@@ -41,38 +63,62 @@ public class ShipmentService {
     @Transactional(readOnly = true)
     public ShipmentResponse getShipment(UUID id) {
 
-        Shipment shipment = shipmentRepository.findById(id)
-                .orElseThrow(() -> new ShipmentNotFoundException(id));
+        Shipment shipment =
+                shipmentRepository.findById(id)
+                        .orElseThrow(
+                            () -> new ShipmentNotFoundException(id)
+                        );
 
         return ShipmentResponse.fromEntity(shipment);
     }
 
     @Transactional(readOnly = true)
-    public ShipmentResponse getShipmentByTrackingNumber(String trackingNumber) {
+    public ShipmentResponse getShipmentByTrackingNumber(
+            String trackingNumber
+    ) {
 
-        Shipment shipment = shipmentRepository
-                .findByTrackingNumber(trackingNumber)
-                .orElseThrow(() -> new ShipmentNotFoundException(trackingNumber));
+        Shipment shipment =
+                shipmentRepository
+                        .findByTrackingNumber(trackingNumber)
+                        .orElseThrow(
+                            () -> new ShipmentNotFoundException(
+                                    trackingNumber
+                            )
+                        );
 
         return ShipmentResponse.fromEntity(shipment);
     }
 
     @Transactional(readOnly = true)
-    public List<ShipmentResponse> getShipmentsByCustomer(UUID customerId) {
+    public List<ShipmentResponse> getShipmentsByCustomer(
+            UUID customerId
+    ) {
 
-        return shipmentRepository.findByCustomerId(customerId)
+        return shipmentRepository
+                .findByCustomerId(customerId)
                 .stream()
                 .map(ShipmentResponse::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<ShipmentResponse> getAllShipments() {
+    public Page<ShipmentResponse> getShipments(
+            ShipmentStatus status,
+            Pageable pageable
+    ) {
 
-        return shipmentRepository.findAll()
-                .stream()
-                .map(ShipmentResponse::fromEntity)
-                .collect(Collectors.toList());
+        Page<Shipment> shipments;
+
+        if (status != null) {
+            shipments =
+                    shipmentRepository
+                            .findByStatus(status, pageable);
+        } else {
+            shipments =
+                    shipmentRepository.findAll(pageable);
+        }
+
+        return shipments.map(ShipmentResponse::fromEntity);
     }
 
     @Transactional
@@ -81,22 +127,67 @@ public class ShipmentService {
             ShipmentStatus newStatus
     ) {
 
-        Shipment shipment = shipmentRepository.findById(id)
-                .orElseThrow(() -> new ShipmentNotFoundException(id));
+        Shipment shipment =
+                shipmentRepository.findById(id)
+                        .orElseThrow(
+                            () -> new ShipmentNotFoundException(id)
+                        );
+
+        ShipmentStatus currentStatus =
+                shipment.getStatus();
+
+        if (currentStatus == newStatus) {
+            return ShipmentResponse.fromEntity(shipment);
+        }
+
+        if (!currentStatus.canTransitionTo(newStatus)) {
+
+            throw new InvalidShipmentStatusTransitionException(
+                    currentStatus,
+                    newStatus
+            );
+        }
 
         shipment.setStatus(newStatus);
 
-        Shipment updatedShipment = shipmentRepository.save(shipment);
+        Shipment updatedShipment =
+                shipmentRepository.save(shipment);
+
+        ShipmentStatusHistory history =
+                new ShipmentStatusHistory();
+
+        history.setShipmentId(updatedShipment.getId());
+        history.setOldStatus(currentStatus);
+        history.setNewStatus(newStatus);
+
+        historyRepository.save(history);
 
         return ShipmentResponse.fromEntity(updatedShipment);
     }
 
+    @Transactional(readOnly = true)
+    public List<ShipmentStatusHistoryResponse> getHistory(
+            UUID shipmentId
+    ) {
+
+        if (!shipmentRepository.existsById(shipmentId)) {
+            throw new ShipmentNotFoundException(shipmentId);
+        }
+
+        return historyRepository
+                .findByShipmentIdOrderByChangedAtAsc(shipmentId)
+                .stream()
+                .map(ShipmentStatusHistoryResponse::fromEntity)
+                .toList();
+    }
+
     private String generateTrackingNumber() {
 
-        return "SHP-" + UUID.randomUUID()
-                .toString()
-                .replace("-", "")
-                .substring(0, 12)
-                .toUpperCase();
+        return "SHP-"
+                + UUID.randomUUID()
+                    .toString()
+                    .replace("-", "")
+                    .substring(0, 12)
+                    .toUpperCase();
     }
 }
