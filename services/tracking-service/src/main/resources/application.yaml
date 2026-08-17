@@ -3,9 +3,9 @@ spring:
     name: tracking-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/tracking_db
-    username: logistics
-    password: logistics_password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/tracking_db}
+    username: ${SPRING_DATASOURCE_USERNAME:logistics}
+    password: ${SPRING_DATASOURCE_PASSWORD:logistics_password}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -15,6 +15,20 @@ spring:
 
   flyway:
     enabled: true
+
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+
+    consumer:
+      group-id: tracking-service
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+      properties:
+        spring.json.trusted.packages: "com.logistics.tracking.dto"
+        spring.json.value.default.type: "com.logistics.tracking.dto.LocationUpdate"
+        spring.json.use.type.headers: false
 
 server:
   port: 8082

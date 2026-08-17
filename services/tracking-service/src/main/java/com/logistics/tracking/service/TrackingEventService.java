@@ -8,6 +8,9 @@ import com.logistics.tracking.repository.TrackingEventRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.logistics.tracking.entity.ShipmentLocation;
+import com.logistics.tracking.repository.ShipmentLocationRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -16,12 +19,15 @@ import java.util.UUID;
 public class TrackingEventService {
 
     private final TrackingEventRepository trackingEventRepository;
+    private final ShipmentLocationRepository shipmentLocationRepository;
 
     public TrackingEventService(
-            TrackingEventRepository trackingEventRepository
-    ) {
-        this.trackingEventRepository = trackingEventRepository;
-    }
+        TrackingEventRepository trackingEventRepository,
+        ShipmentLocationRepository shipmentLocationRepository
+) {
+    this.trackingEventRepository = trackingEventRepository;
+    this.shipmentLocationRepository = shipmentLocationRepository;
+}
 
     @Transactional
     public TrackingEvent createTrackingEvent(
@@ -162,4 +168,23 @@ public class TrackingEventService {
 
         return events;
     }
+
+    @Transactional(readOnly = true)
+    public List<ShipmentLocation> getShipmentLocations(
+        UUID shipmentId
+    ) {
+        return shipmentLocationRepository
+            .findByShipmentIdOrderByTimestampAsc(shipmentId);
+    }
+
+
+    @Transactional(readOnly = true)
+    public ShipmentLocation getLatestShipmentLocation(
+        UUID shipmentId
+    ) {
+        return shipmentLocationRepository
+            .findTopByShipmentIdOrderByTimestampDesc(shipmentId)
+            .orElse(null);
+}
+
 }

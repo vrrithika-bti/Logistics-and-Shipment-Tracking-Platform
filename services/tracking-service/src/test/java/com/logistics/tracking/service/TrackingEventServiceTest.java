@@ -3,6 +3,8 @@ package com.logistics.tracking.service;
 import com.logistics.tracking.entity.TrackingEvent;
 import com.logistics.tracking.enums.TrackingStatus;
 import com.logistics.tracking.exception.InvalidStatusTransitionException;
+import com.logistics.tracking.exception.ShipmentNotFoundException;
+import com.logistics.tracking.repository.ShipmentLocationRepository;
 import com.logistics.tracking.repository.TrackingEventRepository;
 import org.junit.jupiter.api.Test;
 
@@ -24,8 +26,14 @@ class TrackingEventServiceTest {
         TrackingEventRepository repository =
                 mock(TrackingEventRepository.class);
 
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
+
         TrackingEventService service =
-                new TrackingEventService(repository);
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
         UUID shipmentId = UUID.randomUUID();
 
@@ -53,8 +61,14 @@ class TrackingEventServiceTest {
         TrackingEventRepository repository =
                 mock(TrackingEventRepository.class);
 
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
+
         TrackingEventService service =
-                new TrackingEventService(repository);
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
         UUID shipmentId = UUID.randomUUID();
 
@@ -80,8 +94,14 @@ class TrackingEventServiceTest {
         TrackingEventRepository repository =
                 mock(TrackingEventRepository.class);
 
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
+
         TrackingEventService service =
-                new TrackingEventService(repository);
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
         UUID shipmentId = UUID.randomUUID();
 
@@ -114,8 +134,14 @@ class TrackingEventServiceTest {
         TrackingEventRepository repository =
                 mock(TrackingEventRepository.class);
 
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
+
         TrackingEventService service =
-                new TrackingEventService(repository);
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
         UUID shipmentId = UUID.randomUUID();
 
@@ -146,8 +172,14 @@ class TrackingEventServiceTest {
         TrackingEventRepository repository =
                 mock(TrackingEventRepository.class);
 
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
+
         TrackingEventService service =
-                new TrackingEventService(repository);
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
         UUID shipmentId = UUID.randomUUID();
 
@@ -175,246 +207,290 @@ class TrackingEventServiceTest {
     }
 
     @Test
-void shouldRejectStatusChangeAfterDelivered() {
+    void shouldRejectStatusChangeAfterDelivered() {
+
+        TrackingEventRepository repository =
+                mock(TrackingEventRepository.class);
 
-    TrackingEventRepository repository =
-            mock(TrackingEventRepository.class);
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
 
-    TrackingEventService service =
-            new TrackingEventService(repository);
+        TrackingEventService service =
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
+
+        UUID shipmentId = UUID.randomUUID();
+
+        TrackingEvent existingEvent = new TrackingEvent();
+        existingEvent.setShipmentId(shipmentId);
+        existingEvent.setStatus(TrackingStatus.DELIVERED);
+        existingEvent.setEventTime(LocalDateTime.now());
 
-    UUID shipmentId = UUID.randomUUID();
+        when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
+                .thenReturn(List.of(existingEvent));
 
-    TrackingEvent existingEvent = new TrackingEvent();
-    existingEvent.setShipmentId(shipmentId);
-    existingEvent.setStatus(TrackingStatus.DELIVERED);
-    existingEvent.setEventTime(LocalDateTime.now());
+        assertThrows(
+                InvalidStatusTransitionException.class,
+                () -> service.createTrackingEvent(
+                        shipmentId,
+                        TrackingStatus.IN_TRANSIT,
+                        "Chennai",
+                        LocalDateTime.now().plusHours(1)
+                )
+        );
+
+        verify(repository, never()).save(any());
+    }
 
-    when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
-            .thenReturn(List.of(existingEvent));
+    @Test
+    void shouldAllowPickedUpToInTransit() {
 
-    assertThrows(
-            InvalidStatusTransitionException.class,
-            () -> service.createTrackingEvent(
-                    shipmentId,
-                    TrackingStatus.IN_TRANSIT,
-                    "Chennai",
-                    LocalDateTime.now().plusHours(1)
-            )
-    );
+        TrackingEventRepository repository =
+                mock(TrackingEventRepository.class);
 
-    verify(repository, never()).save(any());
-}
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
 
+        TrackingEventService service =
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
+
+        UUID shipmentId = UUID.randomUUID();
+
+        TrackingEvent existingEvent = new TrackingEvent();
+        existingEvent.setShipmentId(shipmentId);
+        existingEvent.setStatus(TrackingStatus.PICKED_UP);
+        existingEvent.setEventTime(LocalDateTime.now());
+
+        when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
+                .thenReturn(List.of(existingEvent));
+
+        when(repository.save(any(TrackingEvent.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
+        assertDoesNotThrow(() ->
+                service.createTrackingEvent(
+                        shipmentId,
+                        TrackingStatus.IN_TRANSIT,
+                        "Frankfurt",
+                        LocalDateTime.now().plusHours(1)
+                )
+        );
+
+        verify(repository, times(1)).save(any(TrackingEvent.class));
+    }
 
-        @Test
-void shouldAllowPickedUpToInTransit() {
+    @Test
+    void shouldAllowInTransitToArrived() {
+
+        TrackingEventRepository repository =
+                mock(TrackingEventRepository.class);
+
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
+
+        TrackingEventService service =
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
-    TrackingEventRepository repository =
-            mock(TrackingEventRepository.class);
+        UUID shipmentId = UUID.randomUUID();
+
+        TrackingEvent existingEvent = new TrackingEvent();
+        existingEvent.setShipmentId(shipmentId);
+        existingEvent.setStatus(TrackingStatus.IN_TRANSIT);
+        existingEvent.setEventTime(LocalDateTime.now());
 
-    TrackingEventService service =
-            new TrackingEventService(repository);
+        when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
+                .thenReturn(List.of(existingEvent));
 
-    UUID shipmentId = UUID.randomUUID();
+        when(repository.save(any(TrackingEvent.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-    TrackingEvent existingEvent = new TrackingEvent();
-    existingEvent.setShipmentId(shipmentId);
-    existingEvent.setStatus(TrackingStatus.PICKED_UP);
-    existingEvent.setEventTime(LocalDateTime.now());
+        assertDoesNotThrow(() ->
+                service.createTrackingEvent(
+                        shipmentId,
+                        TrackingStatus.ARRIVED,
+                        "Dubai",
+                        LocalDateTime.now().plusHours(1)
+                )
+        );
 
-    when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
-            .thenReturn(List.of(existingEvent));
+        verify(repository, times(1)).save(any(TrackingEvent.class));
+    }
 
-    when(repository.save(any(TrackingEvent.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+    @Test
+    void shouldAllowArrivedToDelivered() {
 
-    assertDoesNotThrow(() ->
-            service.createTrackingEvent(
-                    shipmentId,
-                    TrackingStatus.IN_TRANSIT,
-                    "Frankfurt",
-                    LocalDateTime.now().plusHours(1)
-            )
-    );
+        TrackingEventRepository repository =
+                mock(TrackingEventRepository.class);
 
-    verify(repository, times(1)).save(any(TrackingEvent.class));
-}
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
 
+        TrackingEventService service =
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
-        @Test
-void shouldAllowInTransitToArrived() {
+        UUID shipmentId = UUID.randomUUID();
 
-    TrackingEventRepository repository =
-            mock(TrackingEventRepository.class);
+        TrackingEvent existingEvent = new TrackingEvent();
+        existingEvent.setShipmentId(shipmentId);
+        existingEvent.setStatus(TrackingStatus.ARRIVED);
+        existingEvent.setEventTime(LocalDateTime.now());
 
-    TrackingEventService service =
-            new TrackingEventService(repository);
+        when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
+                .thenReturn(List.of(existingEvent));
 
-    UUID shipmentId = UUID.randomUUID();
+        when(repository.save(any(TrackingEvent.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-    TrackingEvent existingEvent = new TrackingEvent();
-    existingEvent.setShipmentId(shipmentId);
-    existingEvent.setStatus(TrackingStatus.IN_TRANSIT);
-    existingEvent.setEventTime(LocalDateTime.now());
+        assertDoesNotThrow(() ->
+                service.createTrackingEvent(
+                        shipmentId,
+                        TrackingStatus.DELIVERED,
+                        "Chennai",
+                        LocalDateTime.now().plusHours(1)
+                )
+        );
 
-    when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
-            .thenReturn(List.of(existingEvent));
+        verify(repository, times(1)).save(any(TrackingEvent.class));
+    }
 
-    when(repository.save(any(TrackingEvent.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+    @Test
+    void shouldReturnCurrentTrackingEvent() {
 
-    assertDoesNotThrow(() ->
-            service.createTrackingEvent(
-                    shipmentId,
-                    TrackingStatus.ARRIVED,
-                    "Dubai",
-                    LocalDateTime.now().plusHours(1)
-            )
-    );
+        TrackingEventRepository repository =
+                mock(TrackingEventRepository.class);
 
-    verify(repository, times(1)).save(any(TrackingEvent.class));
-}
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
 
+        TrackingEventService service =
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
-        @Test
-void shouldAllowArrivedToDelivered() {
+        UUID shipmentId = UUID.randomUUID();
 
-    TrackingEventRepository repository =
-            mock(TrackingEventRepository.class);
+        TrackingEvent event = new TrackingEvent();
+        event.setShipmentId(shipmentId);
+        event.setStatus(TrackingStatus.IN_TRANSIT);
+        event.setLocation("Frankfurt");
+        event.setEventTime(LocalDateTime.now());
 
-    TrackingEventService service =
-            new TrackingEventService(repository);
+        when(repository.findTopByShipmentIdOrderByEventTimeDesc(shipmentId))
+                .thenReturn(java.util.Optional.of(event));
 
-    UUID shipmentId = UUID.randomUUID();
+        TrackingEvent result =
+                service.getCurrentTrackingEvent(shipmentId);
 
-    TrackingEvent existingEvent = new TrackingEvent();
-    existingEvent.setShipmentId(shipmentId);
-    existingEvent.setStatus(TrackingStatus.ARRIVED);
-    existingEvent.setEventTime(LocalDateTime.now());
+        org.junit.jupiter.api.Assertions.assertEquals(
+                TrackingStatus.IN_TRANSIT,
+                result.getStatus()
+        );
 
-    when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
-            .thenReturn(List.of(existingEvent));
+        verify(repository, times(1))
+                .findTopByShipmentIdOrderByEventTimeDesc(shipmentId);
+    }
 
-    when(repository.save(any(TrackingEvent.class)))
-            .thenAnswer(invocation -> invocation.getArgument(0));
+    @Test
+    void shouldThrowExceptionWhenCurrentTrackingEventNotFound() {
 
-    assertDoesNotThrow(() ->
-            service.createTrackingEvent(
-                    shipmentId,
-                    TrackingStatus.DELIVERED,
-                    "Chennai",
-                    LocalDateTime.now().plusHours(1)
-            )
-    );
+        TrackingEventRepository repository =
+                mock(TrackingEventRepository.class);
 
-    verify(repository, times(1)).save(any(TrackingEvent.class));
-}
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
 
+        TrackingEventService service =
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
-@Test
-void shouldReturnCurrentTrackingEvent() {
+        UUID shipmentId = UUID.randomUUID();
 
-    TrackingEventRepository repository =
-            mock(TrackingEventRepository.class);
+        when(repository.findTopByShipmentIdOrderByEventTimeDesc(shipmentId))
+                .thenReturn(java.util.Optional.empty());
 
-    TrackingEventService service =
-            new TrackingEventService(repository);
+        assertThrows(
+                ShipmentNotFoundException.class,
+                () -> service.getCurrentTrackingEvent(shipmentId)
+        );
+    }
 
-    UUID shipmentId = UUID.randomUUID();
+    @Test
+    void shouldReturnTrackingEventsForShipment() {
 
-    TrackingEvent event = new TrackingEvent();
-    event.setShipmentId(shipmentId);
-    event.setStatus(TrackingStatus.IN_TRANSIT);
-    event.setLocation("Frankfurt");
-    event.setEventTime(LocalDateTime.now());
+        TrackingEventRepository repository =
+                mock(TrackingEventRepository.class);
 
-    when(repository.findTopByShipmentIdOrderByEventTimeDesc(shipmentId))
-            .thenReturn(java.util.Optional.of(event));
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
 
-    TrackingEvent result =
-            service.getCurrentTrackingEvent(shipmentId);
+        TrackingEventService service =
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
-    org.junit.jupiter.api.Assertions.assertEquals(
-            TrackingStatus.IN_TRANSIT,
-            result.getStatus()
-    );
+        UUID shipmentId = UUID.randomUUID();
 
-    verify(repository, times(1))
-            .findTopByShipmentIdOrderByEventTimeDesc(shipmentId);
-}
+        TrackingEvent event1 = new TrackingEvent();
+        event1.setShipmentId(shipmentId);
+        event1.setStatus(TrackingStatus.CREATED);
 
-@Test
-void shouldThrowExceptionWhenCurrentTrackingEventNotFound() {
+        TrackingEvent event2 = new TrackingEvent();
+        event2.setShipmentId(shipmentId);
+        event2.setStatus(TrackingStatus.PICKED_UP);
 
-    TrackingEventRepository repository =
-            mock(TrackingEventRepository.class);
+        when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
+                .thenReturn(List.of(event1, event2));
 
-    TrackingEventService service =
-            new TrackingEventService(repository);
+        List<TrackingEvent> result =
+                service.getTrackingEventsForShipment(shipmentId);
 
-    UUID shipmentId = UUID.randomUUID();
+        org.junit.jupiter.api.Assertions.assertEquals(
+                2,
+                result.size()
+        );
 
-    when(repository.findTopByShipmentIdOrderByEventTimeDesc(shipmentId))
-            .thenReturn(java.util.Optional.empty());
+        verify(repository, times(1))
+                .findByShipmentIdOrderByEventTimeAsc(shipmentId);
+    }
 
-    assertThrows(
-            com.logistics.tracking.exception.ShipmentNotFoundException.class,
-            () -> service.getCurrentTrackingEvent(shipmentId)
-    );
-}
+    @Test
+    void shouldThrowExceptionWhenTrackingEventsNotFound() {
 
-@Test
-void shouldReturnTrackingEventsForShipment() {
+        TrackingEventRepository repository =
+                mock(TrackingEventRepository.class);
 
-    TrackingEventRepository repository =
-            mock(TrackingEventRepository.class);
+        ShipmentLocationRepository locationRepository =
+                mock(ShipmentLocationRepository.class);
 
-    TrackingEventService service =
-            new TrackingEventService(repository);
+        TrackingEventService service =
+                new TrackingEventService(
+                        repository,
+                        locationRepository
+                );
 
-    UUID shipmentId = UUID.randomUUID();
+        UUID shipmentId = UUID.randomUUID();
 
-    TrackingEvent event1 = new TrackingEvent();
-    event1.setShipmentId(shipmentId);
-    event1.setStatus(TrackingStatus.CREATED);
+        when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
+                .thenReturn(Collections.emptyList());
 
-    TrackingEvent event2 = new TrackingEvent();
-    event2.setShipmentId(shipmentId);
-    event2.setStatus(TrackingStatus.PICKED_UP);
-
-    when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
-            .thenReturn(List.of(event1, event2));
-
-    List<TrackingEvent> result =
-            service.getTrackingEventsForShipment(shipmentId);
-
-    org.junit.jupiter.api.Assertions.assertEquals(2, result.size());
-
-    verify(repository, times(1))
-            .findByShipmentIdOrderByEventTimeAsc(shipmentId);
-}
-
-@Test
-void shouldThrowExceptionWhenTrackingEventsNotFound() {
-
-    TrackingEventRepository repository =
-            mock(TrackingEventRepository.class);
-
-    TrackingEventService service =
-            new TrackingEventService(repository);
-
-    UUID shipmentId = UUID.randomUUID();
-
-    when(repository.findByShipmentIdOrderByEventTimeAsc(shipmentId))
-            .thenReturn(Collections.emptyList());
-
-    assertThrows(
-            com.logistics.tracking.exception.ShipmentNotFoundException.class,
-            () -> service.getTrackingEventsForShipment(shipmentId)
-    );
-}
-
-
+        assertThrows(
+                ShipmentNotFoundException.class,
+                () -> service.getTrackingEventsForShipment(shipmentId)
+        );
+    }
 }

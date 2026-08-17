@@ -1,0 +1,14 @@
+warning: in the working copy of 'services/tracking-service/pom.xml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'services/tracking-service/src/main/resources/application.yaml', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'services/tracking-service/src/test/java/com/logistics/tracking/service/TrackingEventServiceTest.java', LF will be replaced by CRLF the next time Git touches it
+ infrastructure/docker-compose.yml                  |  77 [32m++++[m
+ services/shipment-service/Dockerfile               |   9 [32m+[m
+ .../src/main/resources/application.yml             |  53 [32m+[m[31m--[m
+ services/tracking-service/pom.xml                  |  25 [32m++[m
+ .../controller/TrackingEventController.java        |  76 [32m+++[m[31m-[m
+ .../dto/ShipmentTrackingSummaryResponse.java       |  32 [32m+[m[31m-[m
+ .../tracking/exception/GlobalExceptionHandler.java |  25 [32m++[m
+ .../tracking/service/TrackingEventService.java     |  33 [32m+[m[31m-[m
+ .../src/main/resources/application.yaml            |  20 [32m+[m[31m-[m
+ .../tracking/service/TrackingEventServiceTest.java | 428 [32m++++++++++++[m[31m---------[m
+ 10 files changed, 540 insertions(+), 238 deletions(-)
