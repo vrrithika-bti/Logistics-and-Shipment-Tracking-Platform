@@ -6,7 +6,7 @@ target/
 .idea/
 *.iml
 .vscode/
-nh
+
 # Eclipse
 .classpath
 .project
@@ -25,3 +25,8 @@ Thumbs.db
 !.env.example
 
 .venv/
+
+.streamlit/secrets.toml
+
+__pycache__/
+*.pyc
