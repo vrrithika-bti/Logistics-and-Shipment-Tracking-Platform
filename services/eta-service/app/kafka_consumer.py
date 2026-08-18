@@ -54,17 +54,20 @@ def get_shipment_destination(shipment_id):
     except HTTPError as exc:
         print(
             f"Shipment service returned HTTP "
-            f"{exc.code} for shipment {shipment_id}"
+            f"{exc.code} for shipment {shipment_id}",
+            flush=True
         )
 
     except URLError as exc:
         print(
-            f"Could not connect to shipment service: {exc}"
+            f"Could not connect to shipment service: {exc}",
+            flush=True
         )
 
     except Exception as exc:
         print(
-            f"Failed to get shipment destination: {exc}"
+            f"Failed to get shipment destination: {exc}",
+            flush=True
         )
 
     return None, None
@@ -89,7 +92,8 @@ def process_location_update(
         ):
             print(
                 f"Destination coordinates not available "
-                f"for shipment {shipment_id}"
+                f"for shipment {shipment_id}",
+                flush=True
             )
 
             latest_locations[shipment_id] = location_update
@@ -108,7 +112,8 @@ def process_location_update(
             print(
                 f"ETA calculated for shipment "
                 f"{shipment_id}: "
-                f"{eta.estimatedArrival}"
+                f"{eta.estimatedArrival}",
+                flush=True
             )
 
     latest_locations[shipment_id] = location_update
@@ -129,7 +134,8 @@ def start_kafka_consumer():
 
     print(
         f"ETA service consuming Kafka topic: "
-        f"{KAFKA_TOPIC}"
+        f"{KAFKA_TOPIC}",
+        flush=True
     )
 
     for message in consumer:
@@ -147,14 +153,16 @@ def start_kafka_consumer():
 
             print(
                 f"Processed location update for shipment "
-                f"{location_update.shipmentId}"
+                f"{location_update.shipmentId}",
+                flush=True
             )
 
         except Exception as exc:
 
             print(
                 f"Failed to process location update: "
-                f"{exc}"
+                f"{exc}",
+                flush=True
             )
 
 

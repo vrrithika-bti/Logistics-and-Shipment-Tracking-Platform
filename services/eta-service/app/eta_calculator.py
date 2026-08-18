@@ -46,7 +46,33 @@ def calculate_eta(
     destination_longitude: float
 ) -> EtaResponse | None:
 
-    # Calculate distance travelled since previous update
+    print(
+        f"Calculating ETA for shipment "
+        f"{current.shipmentId}"
+    )
+
+    print(
+        f"Previous location: "
+        f"{previous.latitude}, {previous.longitude}"
+    )
+
+    print(
+        f"Current location: "
+        f"{current.latitude}, {current.longitude}"
+    )
+
+    print(
+        f"Previous timestamp: {previous.timestamp}"
+    )
+
+    print(
+        f"Current timestamp: {current.timestamp}"
+    )
+
+    # --------------------------------------------------
+    # 1. Calculate distance travelled
+    # --------------------------------------------------
+
     distance_travelled_km = calculate_distance_km(
         previous.latitude,
         previous.longitude,
@@ -54,23 +80,56 @@ def calculate_eta(
         current.longitude
     )
 
-    # Calculate elapsed time in hours
+    print(
+        f"Distance travelled: "
+        f"{distance_travelled_km:.2f} km"
+    )
+
+    # --------------------------------------------------
+    # 2. Calculate elapsed time
+    # --------------------------------------------------
+
     elapsed_seconds = (
         current.timestamp - previous.timestamp
     ).total_seconds()
 
+    print(
+        f"Elapsed time: "
+        f"{elapsed_seconds:.2f} seconds"
+    )
+
     if elapsed_seconds <= 0:
+        print(
+            "Cannot calculate ETA: "
+            "current timestamp is not after previous timestamp"
+        )
         return None
 
     elapsed_hours = elapsed_seconds / 3600.0
 
-    # Calculate current average speed
+    # --------------------------------------------------
+    # 3. Calculate average speed
+    # --------------------------------------------------
+
     average_speed_kmh = (
         distance_travelled_km / elapsed_hours
     )
 
-    # Cannot calculate ETA if the shipment has not moved
+    print(
+        f"Average speed: "
+        f"{average_speed_kmh:.2f} km/h"
+    )
+
+    # --------------------------------------------------
+    # 4. Handle zero movement
+    # --------------------------------------------------
+
     if average_speed_kmh <= 0:
+        print(
+            "Shipment has not moved. "
+            "Cannot calculate a normal ETA."
+        )
+
         return EtaResponse(
             shipmentId=current.shipmentId,
             currentLocation=current.location,
@@ -80,7 +139,10 @@ def calculate_eta(
             delayMinutes=0.0
         )
 
-    # Calculate remaining distance to destination
+    # --------------------------------------------------
+    # 5. Calculate remaining distance
+    # --------------------------------------------------
+
     remaining_distance_km = calculate_distance_km(
         current.latitude,
         current.longitude,
@@ -88,17 +150,40 @@ def calculate_eta(
         destination_longitude
     )
 
-    # Calculate travel time remaining
+    print(
+        f"Remaining distance: "
+        f"{remaining_distance_km:.2f} km"
+    )
+
+    # --------------------------------------------------
+    # 6. Calculate remaining travel time
+    # --------------------------------------------------
+
     remaining_hours = (
         remaining_distance_km / average_speed_kmh
     )
 
-    remaining_seconds = remaining_hours * 3600
+    remaining_seconds = (
+        remaining_hours * 3600
+    )
+
+    # --------------------------------------------------
+    # 7. Calculate estimated arrival
+    # --------------------------------------------------
 
     estimated_arrival = (
         current.timestamp
         + timedelta(seconds=remaining_seconds)
     )
+
+    print(
+        f"Estimated arrival: "
+        f"{estimated_arrival}"
+    )
+
+    # --------------------------------------------------
+    # 8. Return ETA response
+    # --------------------------------------------------
 
     return EtaResponse(
         shipmentId=current.shipmentId,
