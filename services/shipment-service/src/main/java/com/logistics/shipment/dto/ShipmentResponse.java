@@ -1,10 +1,10 @@
 package com.logistics.shipment.dto;
 
-import com.logistics.shipment.entity.Shipment;
-import com.logistics.shipment.model.ShipmentStatus;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import com.logistics.shipment.entity.Shipment;
+import com.logistics.shipment.model.ShipmentStatus;
 
 public record ShipmentResponse(
         UUID id,
@@ -12,6 +12,8 @@ public record ShipmentResponse(
         UUID customerId,
         String origin,
         String destination,
+        Double destinationLatitude,
+        Double destinationLongitude,
         ShipmentStatus status,
         LocalDateTime estimatedDelivery,
         LocalDateTime createdAt,
@@ -25,10 +27,13 @@ public record ShipmentResponse(
                 shipment.getCustomerId(),
                 shipment.getOrigin(),
                 shipment.getDestination(),
+                shipment.getDestinationLatitude(),
+                shipment.getDestinationLongitude(),
                 shipment.getStatus(),
                 shipment.getEstimatedDelivery(),
                 shipment.getCreatedAt(),
                 shipment.getUpdatedAt()
+            
         );
     }
 }

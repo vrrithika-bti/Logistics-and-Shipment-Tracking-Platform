@@ -1,5 +1,13 @@
 package com.logistics.shipment.service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.logistics.shipment.dto.CreateShipmentRequest;
 import com.logistics.shipment.dto.ShipmentResponse;
 import com.logistics.shipment.dto.ShipmentStatusHistoryResponse;
@@ -10,13 +18,6 @@ import com.logistics.shipment.exception.ShipmentNotFoundException;
 import com.logistics.shipment.model.ShipmentStatus;
 import com.logistics.shipment.repository.ShipmentRepository;
 import com.logistics.shipment.repository.ShipmentStatusHistoryRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ShipmentService {
@@ -43,6 +44,11 @@ public class ShipmentService {
         shipment.setCustomerId(request.getCustomerId());
         shipment.setOrigin(request.getOrigin());
         shipment.setDestination(request.getDestination());
+
+        shipment.setDestinationLatitude(request.getDestinationLatitude());
+
+        shipment.setDestinationLongitude(request.getDestinationLongitude());
+
         shipment.setStatus(ShipmentStatus.CREATED);
 
         Shipment savedShipment =

@@ -1,16 +1,19 @@
 package com.logistics.location.config;
 
 import com.logistics.location.dto.LocationUpdate;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
+
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,9 +25,17 @@ public class KafkaProducerConfig {
     private String bootstrapServers;
 
     @Bean
+    public JsonMapper jsonMapper() {
+        return JsonMapper.builder()
+                .findAndAddModules()
+                .build();
+    }
+
+    @Bean
     public ProducerFactory<String, LocationUpdate> producerFactory(
-            ObjectMapper objectMapper
+            JsonMapper jsonMapper
     ) {
+
         Map<String, Object> config = new HashMap<>();
 
         config.put(
@@ -37,8 +48,8 @@ public class KafkaProducerConfig {
                 StringSerializer.class
         );
 
-        JsonSerializer<LocationUpdate> valueSerializer =
-                new JsonSerializer<>(objectMapper);
+        JacksonJsonSerializer<LocationUpdate> valueSerializer =
+                new JacksonJsonSerializer<>(jsonMapper);
 
         return new DefaultKafkaProducerFactory<>(
                 config,
