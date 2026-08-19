@@ -97,6 +97,24 @@ services:
       kafka:
         condition: service_started
 
+  
+  eta-service:
+    build:
+      context: ../services/eta-service
+
+    container_name: eta-service
+
+    ports:
+      - "8084:8084"
+
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      SHIPMENT_SERVICE_URL: http://shipment-service:8081
+
+    depends_on:
+      kafka:
+        condition: service_started
+
 
 volumes:
   postgres_data:
