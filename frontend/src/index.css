@@ -1,0 +1,403 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.login-card h1 {
+  margin: 0;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 30px;
+}
+
+.role-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.role-selector button {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 6px;
+}
+
+.role-selector .active-role {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 7px;
+  font-weight: bold;
+}
+
+input {
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+}
+
+.login-button {
+  padding: 13px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+}
+
+.navbar {
+  min-height: 64px;
+  padding: 0 40px;
+  background: #1e3a5f;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar-brand {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.navbar-links a {
+  color: white;
+  text-decoration: none;
+}
+
+.navbar-links a:hover {
+  text-decoration: underline;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.dashboard-subtitle {
+  color: #6b7280;
+  margin-bottom: 30px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(220px, 1fr)
+  );
+  gap: 20px;
+}
+
+.dashboard-card {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-card h2 {
+  margin-top: 0;
+}
+
+.form-card {
+  max-width: 650px;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.form-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-card select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+}
+
+.form-card .login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.success-message {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 6px;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.error-message {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 6px;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.shipment-result {
+  margin-top: 25px;
+  padding: 20px;
+  border-radius: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+.shipment-result h2 {
+  margin-top: 0;
+}
+
+
+.eta-section {
+  margin-top: 30px;
+}
+
+.eta-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 14px;
+
+  background: #e8f7ee;
+  color: #16803c;
+
+  border: 1px solid #b8e3c8;
+  border-radius: 999px;
+
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+
+  background: #22c55e;
+  border-radius: 50%;
+
+  animation: livePulse 1.5s infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.eta-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(230px, 1fr));
+
+  gap: 18px;
+}
+
+.eta-card {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #dbe5f0;
+  border-radius: 14px;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.05);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.eta-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.eta-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 50px;
+  height: 50px;
+
+  font-size: 1.5rem;
+
+  background: #eef4ff;
+
+  border-radius: 12px;
+}
+
+.eta-label {
+  margin: 0 0 6px;
+
+  color: #64748b;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.eta-card h3 {
+  margin: 0;
+
+  color: #243b53;
+
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.eta-loading {
+  padding: 12px 0;
+
+  color: #2563eb;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .eta-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .eta-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+.logout-button {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 8px 12px;
+}
+
+.logout-button:hover {
+  opacity: 0.8;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 1100px;
+}
+
+.table-container th,
+.table-container td {
+  padding: 14px 12px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.table-container .login-button {
+  padding: 10px 16px;
+  min-width: 110px;
+  margin: 0;
+}
+
+.table-container select {
+  width: 100%;
+  min-width: 160px;
+  padding: 8px;
+  font-size: 16px;
+}

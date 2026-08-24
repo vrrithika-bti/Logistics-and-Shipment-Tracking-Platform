@@ -1,7 +1,10 @@
 package com.logistics.location.config;
 
-import com.logistics.location.dto.LocationUpdate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.logistics.location.dto.LocationUpdate;
+
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,9 +25,8 @@ public class KafkaProducerConfig {
     private String bootstrapServers;
 
     @Bean
-    public ProducerFactory<String, LocationUpdate> producerFactory(
-            ObjectMapper objectMapper
-    ) {
+    public ProducerFactory<String, LocationUpdate> producerFactory() {
+
         Map<String, Object> config = new HashMap<>();
 
         config.put(
@@ -37,8 +39,14 @@ public class KafkaProducerConfig {
                 StringSerializer.class
         );
 
+        ObjectMapper kafkaObjectMapper = new ObjectMapper();
+        kafkaObjectMapper.registerModule(new JavaTimeModule());
+        kafkaObjectMapper.disable(
+                SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
+        );
+
         JsonSerializer<LocationUpdate> valueSerializer =
-                new JsonSerializer<>(objectMapper);
+                new JsonSerializer<>(kafkaObjectMapper);
 
         return new DefaultKafkaProducerFactory<>(
                 config,

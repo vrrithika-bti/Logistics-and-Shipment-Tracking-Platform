@@ -3,3 +3,4 @@ uvicorn[standard]
 kafka-python
 psycopg[binary]
 pydantic
+requests
